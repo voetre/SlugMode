@@ -4,14 +4,15 @@
     <Authors></Authors>
     <Company></Company>
     <Version>0.0.0.1</Version>
-    <Description>A sample plugin.</Description>
+    <Description>Slug Mode.</Description>
     <Copyright></Copyright>
-    <PackageProjectUrl>https://github.com/goatcorp/SamplePlugin</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/voetre/SlugMode</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup>
     <TargetFramework>net7.0-windows</TargetFramework>
     <Platforms>x64</Platforms>
+    <OutputPath>bin\$(Configuration)</OutputPath>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

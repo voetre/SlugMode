@@ -1,0 +1,12 @@
+{
+  "Author": "voetre",
+  "Name": "Slug Mode",
+  "Punchline": "Do you like slugs? Do you wish everyone was a slug?.",
+  "Description": "We are all slugs down here.",
+  "InternalName": "SlugMode",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "SlugMode",
+    "Slugs",
+  ]
+}
