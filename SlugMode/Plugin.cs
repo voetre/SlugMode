@@ -53,7 +53,6 @@ namespace SlugMode
                 DalamudApi.Framework.RunOnTick(() => obj->RenderFlags = 0, default, 2);
                 SlugsMadeCount++;
             }
-            //PrintEcho($"Transformed {SlugsMadeCount} players!");
         }
 
         public void Dispose()
