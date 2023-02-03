@@ -1,9 +1,6 @@
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using System.IO;
-using Dalamud.Interface.Windowing;
-using SlugMode.Windows;
 using System;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
@@ -14,42 +11,33 @@ namespace SlugMode
     public unsafe class Plugin : IDalamudPlugin
     {
         public string Name => "Slug Mode";
-        private const string CommandName = "/slugmode";
+        private const string SlugModeCommand = "/slugmode";
+        private const string UnSlugCommand = "/unslug";
 
-        private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
-        public Configuration Configuration { get; init; }
-        public WindowSystem WindowSystem = new("SlugMode");
         public static IntPtr PlayerAddress => DalamudApi.ClientState.LocalPlayer.Address;
+
+        public static void PrintEcho(string message) => DalamudApi.ChatGui.Print($"[SlugMode] {message}");
+        public static void PrintError(string message) => DalamudApi.ChatGui.PrintError($"[SlugMode] {message}");
 
         public Plugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
             [RequiredVersion("1.0")] CommandManager commandManager)
         {
-            this.PluginInterface = pluginInterface;
+            DalamudApi.Initialize(this, pluginInterface);
+
             this.CommandManager = commandManager;
 
-            this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            this.Configuration.Initialize(this.PluginInterface);
-
-            // you might normally want to embed resources and load them from the manifest stream
-            var imagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
-            var goatImage = this.PluginInterface.UiBuilder.LoadImage(imagePath);
-
-
-            var imagePath2 = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
-            var goatImage2 = this.PluginInterface.UiBuilder.LoadImage(imagePath);
-
-            WindowSystem.AddWindow(new ConfigWindow(this));
-            WindowSystem.AddWindow(new MainWindow(this, goatImage, goatImage2));
-
-            this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
+            this.CommandManager.AddHandler(SlugModeCommand, new CommandInfo(SlugCommand)
             {
-                HelpMessage = "A useful message to display in /xlhelp"
+                HelpMessage = "Activate the SlugMode engines, provide a model ID if you aren't fond of slugs..."
             });
 
-            this.PluginInterface.UiBuilder.Draw += DrawUI;
-            this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
+            this.CommandManager.AddHandler(UnSlugCommand, new CommandInfo(CureCommand)
+            {
+                HelpMessage = "Cures all transformed players."
+            });
+
         }
         public static void SlugMode(int ModelID)
         {
@@ -65,30 +53,39 @@ namespace SlugMode
                 DalamudApi.Framework.RunOnTick(() => obj->RenderFlags = 0, default, 2);
                 SlugsMadeCount++;
             }
-            DalamudApi.ChatGui.PrintError($"{SlugsMadeCount}");
+            //PrintEcho($"Transformed {SlugsMadeCount} players!");
         }
 
         public void Dispose()
         {
-            this.WindowSystem.RemoveAllWindows();
-            this.CommandManager.RemoveHandler(CommandName);
+            this.CommandManager.RemoveHandler(SlugModeCommand);
+            this.CommandManager.RemoveHandler(UnSlugCommand);
         }
 
-        private void OnCommand(string command, string args)
+        private void SlugCommand(string command, string args)
         {
-            // in response to the slash command, just display our main ui
-            //WindowSystem.GetWindow("My Amazing Window").IsOpen = true;
-            SlugMode(Int32.Parse(args));
+            try
+            {
+                    if (args == "")
+                    {
+                        SlugMode(50);
+                    }
+                    else
+                    {
+                        SlugMode(Int32.Parse(args));
+                    }
+            }
+            catch
+            {
+                PrintError($"the argument '{args}' was invalid.");
+                PrintError("You must specify a model number e.g. '/slugmode 50'.");
+            }
         }
 
-        private void DrawUI()
+        private void CureCommand(string command, string args)
         {
-            this.WindowSystem.Draw();
+            SlugMode(0);
         }
 
-        public void DrawConfigUI()
-        {
-            WindowSystem.GetWindow("A Wonderful Configuration Window").IsOpen = true;
-        }
     }
 }
